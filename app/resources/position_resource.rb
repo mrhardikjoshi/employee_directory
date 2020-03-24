@@ -5,12 +5,8 @@ class PositionResource < ApplicationResource
   attribute :historical_index, :integer, only: [:sortable]
   attribute :active, :boolean
 
-  belongs_to :employee
-  belongs_to :department
-
-  filter :current, :boolean do
-    eq { |scope, value| scope.current(value) }
-  end
+  has_one :employee
+  has_one :department
 
   before_commit only: [:create, :destroy] do |position|
     Position.reorder!(position.employee_id)

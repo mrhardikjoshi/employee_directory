@@ -11,7 +11,7 @@ RSpec.describe "departments#create", type: :request do
         data: {
           type: 'departments',
           attributes: {
-            # ... your attrs here
+            name: 'test'
           }
         }
       }
@@ -24,6 +24,7 @@ RSpec.describe "departments#create", type: :request do
       }.to change { Department.count }.by(1)
       department = Department.last
       expect(response.status).to eq(201)
+      expect(department.name).to eq('test')
     end
   end
 end

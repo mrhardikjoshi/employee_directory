@@ -1,7 +1,10 @@
-class Team < ApplicationRecord
-  belongs_to :department
-  has_many :team_memberships
-  has_many :employees, through: :team_memberships
-  has_many :notes, as: :notable
-  has_many :tasks
+class Team
+  include ActiveGraph::Node
+  include ActiveGraph::Timestamps
+  property :name, type: String
+  has_one :out, :department, type: :department
+  has_many :out, :employee, type: :team
+
+  has_many :in, :notes, type: :note
+  has_many :in, :tasks, type: :task
 end

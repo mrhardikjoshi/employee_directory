@@ -1,6 +1,9 @@
-class Task < ApplicationRecord
+class Task
+  include ActiveGraph::Node
+  include ActiveGraph::Timestamps
+  property :title, type: String
   TYPES = %w(Bug Feature Epic)
 
-  belongs_to :team, optional: true
-  belongs_to :employee, optional: true
+  has_one :out, :team, type: :task
+  has_one :out, :employee, type: :task
 end

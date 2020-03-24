@@ -5,6 +5,6 @@ class TaskResource < ApplicationResource
   attribute :team_id, :integer, only: [:filterable]
   attribute :title, :string
 
-  belongs_to :employee
-  belongs_to :team
+  has_one :employee
+  has_one :team
 end

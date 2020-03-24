@@ -2,10 +2,51 @@
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
 # Prevent database truncation if the environment is production
-abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'spec_helper'
 require 'rspec/rails'
+class Neo4jCleaner
+  class << self
+    def start
+    end
+
+    def clean
+      ActiveGraph::Base.query('MATCH (n) DETACH DELETE n')
+    end
+
+    def cleaning(&block)
+      start
+      yield
+      clean
+    end
+
+    def clean_with(*args)
+      clean
+    end
+
+    def clean_all
+      p 'Cleaning neo4j database'
+      ActiveGraph::Base.query('CALL apoc.schema.assert({}, {})')
+      clean
+    end
+  end
+end
+
+RSpec.configure do |config|
+  config.include FactoryBot::Syntax::Methods
+
+  config.before(:suite) do
+    Neo4jCleaner.start
+  ensure
+    Neo4jCleaner.clean
+  end
+
+  config.append_after(:example) do |example|
+    Neo4jCleaner.clean unless example.metadata[:skip_deletion]
+  end
+end
+
 require 'graphiti_spec_helpers/rspec'
+
 # Add additional requires below this line. Rails is not loaded until this point!
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
@@ -25,7 +66,6 @@ require 'graphiti_spec_helpers/rspec'
 
 # Checks for pending migration and applies them before tests are run.
 # If you are not using ActiveRecord, you can remove this line.
-ActiveRecord::Migration.maintain_test_schema!
 
 RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
@@ -37,20 +77,8 @@ RSpec.configure do |config|
     handle_request_exceptions(false)
   end
 
-  # bootstrap database cleaner
-  config.before(:suite) do
-    DatabaseCleaner.strategy = :transaction
-    DatabaseCleaner.clean_with(:truncation)
-  end
-
-  config.around(:each) do |example|
-    begin
-      DatabaseCleaner.cleaning do
-        example.run
-      end
-    ensure
-      DatabaseCleaner.clean
-    end
+  config.after(:suite) do
+    ActiveGraph::Base.current_driver.close
   end
 
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
@@ -82,4 +110,4 @@ RSpec.configure do |config|
   # config.filter_gems_from_backtrace("gem name")
 end
 
-GraphitiSpecHelpers::RSpec.schema!
+# GraphitiSpecHelpers::RSpec.schema!

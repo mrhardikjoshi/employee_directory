@@ -41,10 +41,7 @@ RSpec.describe DepartmentResource, type: :resource do
 
         it 'works' do
           render
-          expect(d.map(&:id)).to eq([
-            department1.id,
-            department2.id
-          ])
+          expect(d.map(&:id)).to eq([department1.id, department2.id].sort)
         end
       end
 
@@ -55,10 +52,7 @@ RSpec.describe DepartmentResource, type: :resource do
 
         it 'works' do
           render
-          expect(d.map(&:id)).to eq([
-            department2.id,
-            department1.id
-          ])
+          expect(d.map(&:id)).to eq([department1.id, department2.id].sort.reverse)
         end
       end
     end

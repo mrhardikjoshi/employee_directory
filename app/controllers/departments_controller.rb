@@ -5,7 +5,8 @@ class DepartmentsController < ApplicationController
   end
 
   def show
-    department = DepartmentResource.find(params)
+    dept = Department.find(params[:id])
+    department = DepartmentResource.with_preloaded_obj(dept, params)
     respond_with(department)
   end
 

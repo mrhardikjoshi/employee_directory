@@ -3,15 +3,12 @@ require_relative 'boot'
 require "rails"
 # Pick the frameworks you want:
 require "active_model/railtie"
-require "active_job/railtie"
-require "active_record/railtie"
-require "active_storage/engine"
 require "action_controller/railtie"
 require "action_mailer/railtie"
 require "action_view/railtie"
 require "action_cable/engine"
-# require "sprockets/railtie"
-require "rails/test_unit/railtie"
+require 'active_graph/railtie'
+require 'neo4j_ruby_driver'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -32,5 +29,18 @@ module EmployeeDirectory
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    config.generators do |g|
+      g.test_framework :rspec, fixture: false
+      g.orm :neo4j
+    end
+
+    config.neo4j.session_type = :server_db
+    config.neo4j.session_path = 'http://localhost:7474'
+
+    config.neo4j.id_property = :neo_id
+    config.neo4j.include_root_in_json = false
+    config.neo4j.timestamp_type = Time
+    config.neo4j.fail_on_pending_migrations = false
   end
 end
